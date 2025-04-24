@@ -5,7 +5,7 @@ SRC_URI = "file://source \
            "
 
 # list of runtime dependencies
-RDEPENDS:${PN}:append = " bash "
+RDEPENDS:${PN}:append = " "
 
 # list of buildtime dependencies
 DEPENDS:append = " "
@@ -24,4 +24,4 @@ do_install () {
     install -d ${D}${bindir}
     install -m 0755 ${B}/linuxapps-sani ${D}${bindir}/
 }
-addtask installl after do_compile
+addtask install after do_compile

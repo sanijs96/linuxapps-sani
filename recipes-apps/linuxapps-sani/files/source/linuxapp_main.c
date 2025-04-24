@@ -71,9 +71,18 @@ int main(int argc, char **argv)
     unsigned int ret;
     char strbuf[100] = "";
 
+    ret = FAILURE;
+    if (argc < 2) {
+        goto usage;
+    }
+
     if (!strcmp(argv[1], "fileops")) {
         ret = handle_fileops(argc, argv, strbuf);
     }
 
+    return ret;
+
+usage:
+    printf("usage: <operation type> <cmd> <args1 args2 ...>\n");
     return ret;
 }
