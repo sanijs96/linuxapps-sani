@@ -27,10 +27,10 @@ static unsigned int __allocate_process_list_entry(proc_list_t *p_list)
     return bitentry_idx;
 }
 
-static unsigned int __register_process_entry(proc_entry_t *p_entry, char *procname,
-                                                char **args, int num_args)
+static void __register_process_entry(proc_entry_t *p_entry, char *procname,
+                                        pid_t pid, char **args, int num_args)
 {
-    p_entry->pid = getpid();
+    p_entry->pid = pid;
     strncpy(p_entry->proc_name, procname, MAX_PROCESS_NAME_LEN);
     p_entry->proc_state = PROCESS_STATE_RUNNING;
 
@@ -39,14 +39,6 @@ static unsigned int __register_process_entry(proc_entry_t *p_entry, char *procna
         printf(", %s", args[idx]);
     }
     printf(" >\n");
-
-    if (execv(procname, args) == -1) {
-        printf("process execution failed, errno :%u\n", errno);
-        exit (-1);
-    }
-
-    // returns only on error
-    return FAILURE;
 }
 
 static void __free_process_entry(unsigned int entry_idx)
@@ -99,14 +91,19 @@ unsigned int process_add(char *proc, char **args, int num_args)
 
     pid_chld = fork();
 
-    if (pid_chld == 0) {
-        res = SUCCESS;
+    if (pid_chld == 0) { // child
+        // register entry context
+        if (execv(proc, args) == -1) {
+            printf("process execution failed, errno :%u\n", errno);
+            exit(EXIT_FAILURE);
+        }
+        exit(EXIT_SUCCESS);
     }
-    else if (pid_chld > 0) {
+    else if (pid_chld > 0) { // parent
         proc_entry_t *p_entry;
         p_entry = &(proc_list.entry[new_proc_entry_idx]);
-        // register entry context
-        res = __register_process_entry(p_entry, proc, args, num_args);
+        __register_process_entry(p_entry, proc, pid_chld, args, num_args);
+        res = SUCCESS;
     }
     else {
         printf("process create failed, errno :%u\n", errno);
@@ -128,6 +125,7 @@ static void __update_process_result(proc_entry_t *p_entry)
     if (waitpid(p_entry->pid, &status, WNOHANG) == p_entry->pid) {
         if (WIFEXITED(status)) {
             p_entry->proc_state = PROCESS_STATE_COMPLETE;
+            __dump_process_list(&proc_list);
         }
         else if (WIFSTOPPED(status)) {
             p_entry->proc_state = PROCESS_STATE_STOPPED;
@@ -155,15 +153,13 @@ void process_run(void)
     while (proc_idx < MAX_PROCESS_CNT) {
         p_entry = &(proc_list.entry[proc_idx]);
 
-        __update_process_result(&(proc_list.entry[proc_idx]));
+        __update_process_result(p_entry);
         if (p_entry->proc_state == PROCESS_STATE_COMPLETE) {
             __free_process_entry(proc_idx);
         }
 
         proc_idx = find_next_bit(proc_list.assigned_entry_bitmap, proc_idx + 1);
     }
-
-    exit(EXIT_SUCCESS);
 }
 
 unsigned int process_check_nr_entry(void)

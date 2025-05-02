@@ -76,24 +76,26 @@ usage:
 unsigned int handle_process(int argc, char **argv)
 {
     char *p_command;
+    int num_args;
 
     p_command = argv[2];
 
     // remove argv[0], argv[1], argv[2] (linuxapps, process, p_command)
-    argc -= 3;
-    for (int arg_idx = 0; arg_idx < argc; arg_idx++) {
-        argv[arg_idx] = argv[arg_idx + 3];
+    num_args = argc - 2;
+    char *p_args[num_args];
+    for (int arg_idx = 0; arg_idx < num_args; arg_idx++) {
+        p_args[arg_idx] = argv[arg_idx + 2];
     }
 
-    if (process_add(p_command, argv, argc) == FAILURE) {
-        return FAILURE;
+    if (process_add(p_command, p_args, num_args) == FAILURE) {
+        exit(EXIT_FAILURE);
     }
 
     while (process_check_nr_entry() != 0) {
         process_run();
     }
 
-    return SUCCESS;
+    exit(EXIT_SUCCESS);
 }
 
 int main(int argc, char **argv)
