@@ -7,11 +7,9 @@
 #include <sys/stat.h>
 #include <sys/select.h>
 
-#include "../include/common/common.h"
-#include "file_ops_def.h"
-#include "file_ops.h"
-
-extern int errno;
+#include "../common/include/common.h"
+#include "fileops_def.h"
+#include "fileops.h"
 
 static filelist_t filelist = {0, };
 static fd_set write_fd = {0, };

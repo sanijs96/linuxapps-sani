@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "include/common/common.h"
-#include "ch2_normal_io/file_ops.h"
+#include "common/include/common.h"
+#include "ch2_normal_io/fileops.h"
+#include "ch5_process_mgmt/process.h"
 
 unsigned int handle_fileops(int argc, char **argv, char *strbuf)
 {
@@ -18,6 +19,12 @@ unsigned int handle_fileops(int argc, char **argv, char *strbuf)
     if (argc < FILEOPS_NUM_ARGS_MIN) {
         goto usage;
     }
+
+    printf("User input: <");
+    for (int num_args = 1; num_args < argc; num_args++) {
+        printf("\"%s\" ", argv[num_args]);
+    }
+    printf("> \n");
 
     fileops_cmd_idx = 0;
     p_cmdname = argv[2];
@@ -66,6 +73,29 @@ usage:
     return FAILURE;
 }
 
+unsigned int handle_process(int argc, char **argv)
+{
+    char *p_command;
+
+    p_command = argv[2];
+
+    // remove argv[0], argv[1], argv[2] (linuxapps, process, p_command)
+    argc -= 3;
+    for (int arg_idx = 0; arg_idx < argc; arg_idx++) {
+        argv[arg_idx] = argv[arg_idx + 3];
+    }
+
+    if (process_add(p_command, argv, argc) == FAILURE) {
+        return FAILURE;
+    }
+
+    while (process_check_nr_entry() != 0) {
+        process_run();
+    }
+
+    return SUCCESS;
+}
+
 int main(int argc, char **argv)
 {
     unsigned int ret;
@@ -78,6 +108,9 @@ int main(int argc, char **argv)
 
     if (!strcmp(argv[1], "fileops")) {
         ret = handle_fileops(argc, argv, strbuf);
+    }
+    else if (!strcmp(argv[1], "process")) {
+        ret = handle_process(argc, argv);
     }
 
     return ret;

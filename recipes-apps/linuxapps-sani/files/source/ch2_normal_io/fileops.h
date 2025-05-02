@@ -1,5 +1,5 @@
-#ifndef __FILE_OPS_H__
-#define __FILE_OPS_H__
+#ifndef __FILEOPS_H__
+#define __FILEOPS_H__
 
 // C include
 #include <stdarg.h>
@@ -23,12 +23,12 @@ enum FILE_OPS_SYNC {
     FILE_OPS_SYNC_MAX,
 };
 
-#define FILEOPS_NUM_ARGS_MIN        (4)     // appname fileio cmd filename
-#define FILEOPS_NUM_ARGS_CREATE     (5)     // appname fileio cmd filename + mode
-#define FILEOPS_NUM_ARGS_REGISTER   (4)     // appname fileio cmd filename
-#define FILEOPS_NUM_ARGS_READ       (5)     // appname fileio cmd filename + length
-#define FILEOPS_NUM_ARGS_APPEND     (5)     // appname fileio cmd filename + new string
-#define FILEOPS_NUM_ARGS_REPLACE    (6)     // appname fileio cmd filename + new string + old string
+#define FILEOPS_NUM_ARGS_MIN                (4) // appname fileio cmd filename
+#define FILEOPS_NUM_ARGS_CREATE             (5) // appname fileio cmd filename + mode
+#define FILEOPS_NUM_ARGS_REGISTER           (4) // appname fileio cmd filename
+#define FILEOPS_NUM_ARGS_READ               (5) // appname fileio cmd filename + length
+#define FILEOPS_NUM_ARGS_APPEND             (5) // appname fileio cmd filename + new string
+#define FILEOPS_NUM_ARGS_REPLACE            (6) // appname fileio cmd filename + new string + old string
 
 typedef struct __fileops_args {
     const char *filename;
@@ -66,4 +66,4 @@ unsigned int fileops_replace(const char *filename, fileops_args_t *p_args);
 
 unsigned int fileops_release(const char *filename);
 
-#endif // __FILE_OPS_H__
+#endif // __FILEOPS_H__
